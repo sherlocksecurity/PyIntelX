@@ -28,6 +28,8 @@ The following environment variables are required to be set:
 # How to run
 To run the script:
 
+* run ```git clone git@github.com:sherlocksecurity/PyIntelX.git```
+* Install dependencies ```pip3 install -r requirements.txt```
 * Set the environment variables (Eg: ```export INTEL_API_KEY="YOURKEYHERE"```)
 * Run the script ```python3 PyIntelX.py```
 
