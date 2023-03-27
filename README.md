@@ -3,21 +3,6 @@ I'm designed to search and extract data from the IntelX API using specific keywo
 
 The data is then processed to find any passwords files and reports the results to a Slack channel using the Slack API.
 
-# Prerequisites
-The following Python modules are required to run this script:
-```
-json
-requests
-keywords
-os
-time
-ssl
-pytz
-warnings
-datetime
-Slack SDK
-```
-
 # Environment Variables
 The following environment variables are required to be set:
 
