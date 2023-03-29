@@ -1,4 +1,4 @@
-# ----------PyIntelX-----------
+# ----------PyIntelX (Draft) --Will update with more detailed version -----------
 I'm designed to search and extract data from the IntelX API using specific keywords provided in the ```keywords.py``` file.
 
 The data is then processed to find any passwords files and reports the results to a Slack channel using the Slack API.
