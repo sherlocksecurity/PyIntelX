@@ -85,16 +85,26 @@ def search(keyword, api_url, headers, buckets, lookuplevel, maxresults, timeout,
                     )
 
         except requests.exceptions.HTTPError as err:
-            if search_response.status_code == 402:
+            if search_response.status_code == 401:
+                try:
+                    response = client.chat_postMessage(
+                        channel=Slack_Channel,
+                        text="Your IntelligenceX API is not valid or doesn't have premium subscription"
+                    )
+                    print("Your IntelligenceX API is not valid or doesn't have premium subscription")
+                    break
+                except SlackApiError as e:
+                    print("Error sending message to Slack: {}".format(e))
+            elif search_response.status_code == 402:
                 try:
                     response = client.chat_postMessage(
                         channel=Slack_Channel,
                         text="API Limit is crossed, please wait and try again later"
                     )
                     print("Your IntelX API Limit is Exhaused")
+                    break
                 except SlackApiError as e:
                     print("Error sending message to Slack: {}".format(e))
-
 
 
 def get_result(result_id, api_url, headers, keyword):
