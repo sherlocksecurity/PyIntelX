@@ -1,4 +1,4 @@
-# ----------PyIntelX (Intelligence API for Bug Bounty) -----------
+# -PyIntelX (Intelligence API for Bug Bounty) -
 I'm designed to search and extract credentials from the IntelX API, just enter the target domain to me.
 
 IntelligenceX is a powerful tool that is designed to collect all bot logs from compromised employees of various organizations. This tool can be used to find valuable information such as employee credentials (Like Github Leaks), by simply providing the relevant keywords. With its advanced scanning capabilities, PyIntelX can help you quickly identify the orgs leaks.
