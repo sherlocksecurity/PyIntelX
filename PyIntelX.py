@@ -85,26 +85,16 @@ def search(keyword, api_url, headers, buckets, lookuplevel, maxresults, timeout,
                     )
 
         except requests.exceptions.HTTPError as err:
-            if search_response.status_code == 401:
-                try:
-                    response = client.chat_postMessage(
-                        channel=Slack_Channel,
-                        text="Your IntelligenceX API is not valid or doesn't have premium subscription"
-                    )
-                    print("Your IntelligenceX API is not valid or doesn't have premium subscription")
-                    break
-                except SlackApiError as e:
-                    print("Error sending message to Slack: {}".format(e))
-            elif search_response.status_code == 402:
+            if search_response.status_code == 402:
                 try:
                     response = client.chat_postMessage(
                         channel=Slack_Channel,
                         text="API Limit is crossed, please wait and try again later"
                     )
                     print("Your IntelX API Limit is Exhaused")
-                    break
                 except SlackApiError as e:
                     print("Error sending message to Slack: {}".format(e))
+
 
 
 def get_result(result_id, api_url, headers, keyword):
@@ -148,7 +138,7 @@ def process_results(result_json, api_url, headers, client, keyword):
                             print("Skipping Alert!!! Existing Storage_ID " + storage_id + " found for Target "+ keyword)
                             continue
                         else:
-                            process_passwords(storage_id, filedate, api_url, headers, client)
+                            process_passwords(storage_id, filedate, api_url, headers, client, keyword)
                             with open("storage_ids.txt", "a") as f:
                                 f.write(keyword + ' ' + storage_id + '\n')
 
@@ -175,17 +165,28 @@ def process_results(result_json, api_url, headers, client, keyword):
 
 
 
-def process_passwords(storage_id, filedate, api_url, headers, client):
+def process_passwords(storage_id, filedate, api_url, headers, client, keyword):
     file_read_url = api_url + f'file/read?type=1&storageid={storage_id}&bucket=leaks.logs'
     file_read_response = requests.get(file_read_url, headers=headers, verify=False)
     file_read_response.raise_for_status()
     file_data = file_read_response.text
     file_bytes = bytes(file_data, 'utf-8')
     file_link = "https://intelx.io/?did="+storage_id
-    slack_messenger(file_bytes, filedate, keyword, file_link, client)
+
+# Search for the keyword in the file data & also remove duplicates
+
+    keyword_lines = list(set(line for line in file_data.split("\n") if keyword in line))
+
+    # Print the lines that contain the keyword
+    if keyword_lines:
+        slack_messenger(keyword_lines, file_bytes, filedate, keyword, file_link, client)
+    else:
+        print(f"No lines containing '{keyword}' found.")
+
+    #slack_messenger(file_bytes, filedate, keyword, file_link, client)
 
 
-def slack_messenger(file_bytes, filedate, keyword, file_link, client):
+def slack_messenger(keyword_lines, file_bytes, filedate, keyword, file_link, client):
     try:
         response = client.files_upload_v2(
                     channel=Slack_Channel,
@@ -212,7 +213,7 @@ def slack_messenger(file_bytes, filedate, keyword, file_link, client):
     try:
         response = client.chat_postMessage(
         channel=Slack_Channel,
-        text=f"Date : {filedate} \n Target : {keyword} \n Link: {file_link}",
+        text=f"Date : {filedate} \n Target : {keyword} \n Link: {file_link} \n Matches: {keyword_lines}",
         files=[file_id]
         )
     except SlackApiError as e:
