@@ -8,9 +8,8 @@ More info: https://intelx.io/about
 
 # Requirements
 * Intelligences Professional/Researcher License (https://intelx.io/order)
-* Create a Slack Channel
-* Create a Slack Bot with write,upload,read permissions
-* Environemtn Variables 
+* A Slack Channel & Slack Bot with write,upload,read permissions
+* Environment Variables 
 
 ```IntelX_API_KEY``` API Key for IntelX API
 ```Slack_Bot_Token``` Bot token for Slack API
