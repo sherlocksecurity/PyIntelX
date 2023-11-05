@@ -12,7 +12,7 @@ from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
 #ENVs Here
-IntelX_API_KEY = os.environ.get("INTELX_API_KEY")
+IntelX_API_KEY = os.environ.get("INTELX_API_KEY")  #Either hardcode the values here or set the values in your env
 Slack_Bot_Token = os.environ.get("SLACK_BOT_TOKEN")
 Slack_Channel = os.environ.get("SLACK_CHANNEL")
 
