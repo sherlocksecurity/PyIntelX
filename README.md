@@ -19,5 +19,8 @@ More info: https://intelx.io/about
 
 * Install dependencies ```pip3 install -r requirements.txt```
 * Set the environment variables (Eg: ```export INTEL_API_KEY="YOURKEYHERE"```)
+* Create all the files if not created by script (search_ids.txt and storage_ids.txt) with no content int. 
 * Run the script ```python3 PyIntelX.py```
+
+#You can configure the script to run on cronjob everyday, intelx update their dataset every 24hrs
 
