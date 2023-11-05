@@ -1,6 +1,7 @@
 # -PyIntelX (IntelligenceX for Bug Bounty) - IntelX
 I'm designed to search and extract credentials from the IntelX API, just enter the target domain to me.
 
+Sample Slack Logs with Bug bounty target credential leaks
 <img width="712" alt="POC" src="https://github.com/sherlocksecurity/PyIntelX/assets/52328067/40095eb0-b7dc-473d-aa31-e11315e66f4c">
 
 
