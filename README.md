@@ -1,4 +1,4 @@
-# -PyIntelX (IntelligenceX for Bug Bounty) -
+# -PyIntelX (IntelligenceX for Bug Bounty) - IntelX
 I'm designed to search and extract credentials from the IntelX API, just enter the target domain to me.
 
 
