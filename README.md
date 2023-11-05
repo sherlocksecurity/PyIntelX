@@ -21,7 +21,7 @@ More info: https://intelx.io/about
 * Set the environment variables (Eg: ```export INTEL_API_KEY="YOURKEYHERE"```)
 *  ```export Slack_Bot_Token=Bot Token```
 *  ```export Slack_Channel=ChannelID```
-* Create all the files if not created by script (search_ids.txt and storage_ids.txt) with no content int. 
+* Create all the files if not created by script (search_ids.txt and storage_ids.txt) with no content inside. 
 * Run the script ```python3 PyIntelX.py```
 
 #You can configure the script to run on cronjob everyday, intelx update their dataset every 24hrs
