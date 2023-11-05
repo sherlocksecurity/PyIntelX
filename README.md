@@ -19,6 +19,8 @@ More info: https://intelx.io/about
 
 * Install dependencies ```pip3 install -r requirements.txt```
 * Set the environment variables (Eg: ```export INTEL_API_KEY="YOURKEYHERE"```)
+*  ```export Slack_Bot_Token=Bot Token```
+*  ```export Slack_Channel=ChannelID```
 * Create all the files if not created by script (search_ids.txt and storage_ids.txt) with no content int. 
 * Run the script ```python3 PyIntelX.py```
 
