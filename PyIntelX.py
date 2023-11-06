@@ -137,7 +137,9 @@ def process_results(result_json, api_url, headers, client, keyword):
                 if os.path.isfile("storage_ids.txt"):
                     with open("storage_ids.txt", "r") as f:
                         lines = f.readlines()
-                        storage_ids_set = set((line.strip().split(' ')[0], line.strip().split(' ')[1]) for line in lines)
+                        storage_ids_set = set(
+                                (line.strip().split(' ')[0], line.strip().split(' ')[1]) for line in lines if len(line.strip().split(' ')) >= 2
+                            )
                         
                         if (keyword, storage_id) in storage_ids_set:
                             print("Skipping Alert!!! Existing Storage_ID " + storage_id + " found for Target "+ keyword)
