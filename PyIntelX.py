@@ -14,8 +14,8 @@ from slack_sdk.errors import SlackApiError
 
 #ENVs Here
 IntelX_API_KEY = os.environ.get("INTELX_API_KEY")  #Either hardcode the values here or set the values in your env
-Slack_Bot_Token = os.environ.get("SLACK_BOT_TOKEN")
-Slack_Channel = os.environ.get("SLACK_CHANNEL")
+Slack_Bot_Token = os.environ.get("SLACK_BOT_TOKEN") #In format xoxb-1234564-12345678-xxxxxxxxxx
+Slack_Channel = os.environ.get("SLACK_CHANNEL_ID")    #In the format C03RMDSRF
 
 ist = pytz.timezone('Asia/Kolkata')
 runtime = datetime.now(ist)
@@ -209,12 +209,14 @@ def slack_messenger(keyword_lines, file_bytes, filedate, keyword, file_link, cli
                     file=file_bytes,
                     filename='Passwords.txt'
                 )
-        file_id = response['file']['id']
-    except:
-        response = client.chat_postMessage(
+            file_id = response['file']['id']
+        else:
+            print(e)
+            response = client.chat_postMessage(
                         channel=Slack_Channel,
                         text="File Upload Error, Exiting"
                     )
+
     try:
         response = client.chat_postMessage(
         channel=Slack_Channel,
