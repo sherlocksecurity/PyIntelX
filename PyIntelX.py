@@ -17,7 +17,6 @@ IntelX_API_KEY = os.environ.get("INTELX_API_KEY")  #Either hardcode the values h
 Slack_Bot_Token = os.environ.get("SLACK_BOT_TOKEN")
 Slack_Channel = os.environ.get("SLACK_CHANNEL")
 
-
 ist = pytz.timezone('Asia/Kolkata')
 runtime = datetime.now(ist)
 runtime = runtime.strftime("%Y-%m-%d %H:%M:%S")
@@ -171,13 +170,10 @@ def process_results(result_json, api_url, headers, client, keyword):
                     text="No Results found for the record "
                 )
 
-
-
 def process_passwords(storage_id, filedate, api_url, headers, client, keyword):
     file_read_url = api_url + f'file/read?type=1&storageid={storage_id}&bucket=leaks.logs'
     file_read_response = requests.get(file_read_url, headers=headers, verify=False)
     if file_read_response.status_code != 402:
-        print('condition ')
         file_data = file_read_response.text
         file_bytes = bytes(file_data, 'utf-8')
         file_link = "https://intelx.io/?did="+storage_id
@@ -190,7 +186,7 @@ def process_passwords(storage_id, filedate, api_url, headers, client, keyword):
         try:
             response = client.chat_postMessage(
                 channel=Slack_Channel,
-                text="Intelx File Read Limit is crossed, please check your subscription limit"
+                text="Intelx File Read Limit is crossed,  please check your subscription limit"
             )
             print("Intelx File Read Limit is crossed, please check your subscription limit")
             sys.exit(1)
