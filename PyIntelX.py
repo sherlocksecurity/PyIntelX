@@ -3,6 +3,7 @@ import requests
 import keywords
 import os
 import time
+import sys
 import ssl
 import pytz
 import warnings
@@ -167,7 +168,7 @@ def process_results(result_json, api_url, headers, client, keyword):
     except:
         response = client.chat_postMessage(
                     channel=Slack_Channel,
-                    text="No Results found for record "
+                    text="No Results found for the record "
                 )
 
 
@@ -175,23 +176,26 @@ def process_results(result_json, api_url, headers, client, keyword):
 def process_passwords(storage_id, filedate, api_url, headers, client, keyword):
     file_read_url = api_url + f'file/read?type=1&storageid={storage_id}&bucket=leaks.logs'
     file_read_response = requests.get(file_read_url, headers=headers, verify=False)
-    file_read_response.raise_for_status()
-    file_data = file_read_response.text
-    file_bytes = bytes(file_data, 'utf-8')
-    file_link = "https://intelx.io/?did="+storage_id
-
-# Search for the keyword in the file data & also remove duplicates
-
-    keyword_lines = list(set(line for line in file_data.split("\n") if keyword in line))
-
-    # Print the lines that contain the keyword
-    if keyword_lines:
-        slack_messenger(keyword_lines, file_bytes, filedate, keyword, file_link, client)
+    if file_read_response.status_code != 402:
+        print('condition ')
+        file_data = file_read_response.text
+        file_bytes = bytes(file_data, 'utf-8')
+        file_link = "https://intelx.io/?did="+storage_id
+        keyword_lines = list(set(line for line in file_data.split("\n") if keyword in line))
+        if keyword_lines:
+            slack_messenger(keyword_lines, file_bytes, filedate, keyword, file_link, client)
+        else:
+            print(f"No lines containing '{keyword}' found.")
     else:
-        print(f"No lines containing '{keyword}' found.")
-
-    #slack_messenger(file_bytes, filedate, keyword, file_link, client)
-
+        try:
+            response = client.chat_postMessage(
+                channel=Slack_Channel,
+                text="Intelx File Read Limit is crossed, please check your subscription limit"
+            )
+            print("Intelx File Read Limit is crossed, please check your subscription limit")
+            sys.exit(1)
+        except SlackApiError as e:
+            print("Error sending message to Slack: {}".format(e))
 
 def slack_messenger(keyword_lines, file_bytes, filedate, keyword, file_link, client):
     try:
@@ -201,7 +205,6 @@ def slack_messenger(keyword_lines, file_bytes, filedate, keyword, file_link, cli
                     filename='Passwords.txt'
                 )
         file_id = response['file']['id']
-
     except SlackApiError as e:
         if e.response['error'] == 'internal error: resp':
             time.sleep(5)
@@ -211,7 +214,6 @@ def slack_messenger(keyword_lines, file_bytes, filedate, keyword, file_link, cli
                     filename='Passwords.txt'
                 )
         file_id = response['file']['id']
-
     except:
         response = client.chat_postMessage(
                         channel=Slack_Channel,
